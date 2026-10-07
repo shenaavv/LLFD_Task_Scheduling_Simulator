@@ -1,0 +1,18 @@
+# Maven
+target/
+*.class
+
+# Results (generated at runtime)
+cloudsim-plus-llfd/results/*.log
+cloudsim-plus-llfd/results/*.csv
+cloudsim-plus-llfd/results/*.txt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE
+.idea/
+*.iml
+.vscode/
