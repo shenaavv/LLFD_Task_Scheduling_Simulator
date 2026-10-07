@@ -159,24 +159,24 @@ python3 cloudsim-plus-llfd/dataset/prepare_google_trace.py
 
 ```
 LLFD_Task_Scheduling_Simulator/
-├── run.sh                              # Script utama untuk menjalankan simulasi
-├── README.md                           # Dokumentasi proyek
+├── run.sh                              
+├── README.md                           
 └── cloudsim-plus-llfd/
     ├── pom.xml                         # Maven build file
     ├── dataset/
-    │   ├── tasks.csv                   # 100 tasks (Google Cluster Trace, transformed)
-    │   ├── prepare_google_trace.py     # Script transformasi dari raw trace
-    │   └── source_metadata.txt        # Sumber data & aturan transformasi
-    ├── results/                        # Output simulasi (dibuat saat run)
-    │   ├── run.log                     # Log lengkap seluruh simulasi
-    │   ├── llfd_mapping.csv            # Mapping task→VM hasil LLFD
-    │   ├── metrics.txt                 # Metrik performa LLFD
-    │   └── fcfs_metrics.txt           # Metrik baseline FCFS
+    │   ├── tasks.csv                   
+    │   ├── prepare_google_trace.py     
+    │   └── source_metadata.txt        
+    ├── results/                       
+    │   ├── run.log                    
+    │   ├── llfd_mapping.csv           
+    │   ├── metrics.txt                 
+    │   └── fcfs_metrics.txt          
     └── src/
         └── main/
             └── java/
                 └── id/its/cloudtaskscheduling/
-                    └── LLFDCloudTaskScheduling.java  # Main class
+                    └── LLFDCloudTaskScheduling.java  
 ```
 
 ---
