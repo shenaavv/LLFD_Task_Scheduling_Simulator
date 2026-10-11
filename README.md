@@ -327,11 +327,11 @@ Lihat `cloudsim-plus-llfd/dataset/source_metadata.txt` untuk detail lengkap.
 ## Perbandingan Grafik (Rata‑rata 3 Run)
 
 ### Makespan
-![Makespan]({{ml}}/cloudsim-plus-llfd/results/plot_makespan.png)
+![Makespan](cloudsim-plus-llfd/results/plot_makespan.png)
 ### Total Energy
-![Energy]({{ml}}/cloudsim-plus-llfd/results/plot_energy.png)
+![Energy](cloudsim-plus-llfd/results/plot_energy.png)
 ### Avg VM Utilization
-![Utilization]({{ml}}/cloudsim-plus-llfd/results/plot_util.png)
+![Utilization](cloudsim-plus-llfd/results/plot_util.png)
 ### Throughput
-![Throughput]({{ml}}/cloudsim-plus-llfd/results/plot_throughput.png)
+![Throughput](cloudsim-plus-llfd/results/plot_throughput.png)
 
