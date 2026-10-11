@@ -299,9 +299,39 @@ Berdasarkan eksekusi pada variasi dataset Google Cluster Workload Trace (100, 50
 Dari hasil ini, LLFD terbukti secara konsisten menurunkan makespan dan konsumsi energi keseluruhan, sekaligus meningkatkan throughput hingga ~80% pada skala beban kerja 500 dan 1000 tasks dibandingkan strategi FCFS.
 
 ---
+## Catatan Eksperimen
+
+Kami menguji setiap dataset (`tasks_100.csv`, `tasks_500.csv`, `tasks_1000.csv`) sebanyak **tiga kali** untuk masing‑masing algoritma (LLFD dan FCFS). Jadi ada **9 kali percobaan** per algoritma, total **18 kali**.
+
+Setiap kali percobaan selesai, skrip menulis file metrik tersendiri, contohnya `metrics_1_llfd.txt`, `metrics_2_llfd.txt`, …, `metrics_9_llfd.txt` untuk LLFD, dan file serupa untuk FCFS. Semua file itu kemudian digabungkan menjadi `all_metrics.csv` yang dipakai untuk menggambar grafik.
+
+Berikut isi folder `cloudsim-plus-llfd/results/` setelah selesai:
+
+```
+all_metrics.csv          # CSV yang berisi rata‑rata dari tiga percobaan per dataset
+metrics_*.txt           # File metrik per percobaan (total 18 file)
+plot_*.png              # Gambar grafik
+llfd_mapping_*.csv      # Daftar penugasan VM‑task per dataset
+summary_comparison.txt  # Ringkasan perbandingan keseluruhan
+```
+
+Semoga penjelasan ini membantu memahami mengapa ada banyak file metrik dan bagaimana kami menyajikannya di README.
+
 
 ## Lisensi Dataset
 
 Google Cluster Workload Trace Version 1 dirilis di bawah lisensi
 [Creative Commons Attribution (CC-BY)](https://creativecommons.org/licenses/by/4.0/).
 Lihat `cloudsim-plus-llfd/dataset/source_metadata.txt` untuk detail lengkap.
+
+## Perbandingan Grafik (Rata‑rata 3 Run)
+
+### Makespan
+![Makespan]({{ml}}/cloudsim-plus-llfd/results/plot_makespan.png)
+### Total Energy
+![Energy]({{ml}}/cloudsim-plus-llfd/results/plot_energy.png)
+### Avg VM Utilization
+![Utilization]({{ml}}/cloudsim-plus-llfd/results/plot_util.png)
+### Throughput
+![Throughput]({{ml}}/cloudsim-plus-llfd/results/plot_throughput.png)
+
