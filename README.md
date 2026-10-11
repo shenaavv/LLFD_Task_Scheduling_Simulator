@@ -15,9 +15,12 @@
 
 Proyek ini merupakan simulator penjadwalan cloud task menggunakan algoritma
 **Least-Loaded First-Fit Decreasing (LLFD)** dan CloudSim Plus. Simulator
-membaca 100 task dari Google Cluster Workload Trace yang sudah ditransformasikan
+membaca task dari Google Cluster Workload Trace yang sudah ditransformasikan
 ke schema CloudSim, lalu menjadwalkannya ke 8 VM pada 1 datacenter dengan 4
 host heterogen.
+
+Pengujian dilakukan pada tiga skenario ukuran workload: **100 task**, **500 task**,
+dan **1000 task** untuk mengevaluasi skalabilitas algoritma.
 
 Workload menggunakan model **Bag-of-Tasks (BoT)**, sehingga task independen
 dan tidak memiliki dependency. Tujuan optimasi adalah:
@@ -108,9 +111,12 @@ Energy = Σ (busyTime_i × powerBusy_i + idleTime_i × powerIdle_i)
 
 ## Dataset
 
-Dataset utama berada di `cloudsim-plus-llfd/dataset/tasks.csv`. File ini
-adalah hasil transformasi 100 task dari **Google Cluster Workload Trace
-Version 1** ke schema CloudSim Plus.
+Dataset utama berada di folder `cloudsim-plus-llfd/dataset/`. File dataset
+merupakan hasil transformasi dari **Google Cluster Workload Trace
+Version 1** ke schema CloudSim Plus untuk tiga ukuran skenario:
+- `tasks_100.csv` (100 task) / `tasks.csv` (default)
+- `tasks_500.csv` (500 task)
+- `tasks_1000.csv` (1000 task)
 
 ### Sumber dan Transformasi
 
@@ -127,7 +133,7 @@ workload Borg selama 7 jam dengan kolom raw:
 | `NrmlTaskCores` | Kebutuhan CPU yang dinormalisasi         |
 | `NrmlTaskMem`   | Kebutuhan memori yang dinormalisasi      |
 
-Script `prepare_google_trace.py` mengambil 100 `TaskID` unik pertama yang
+Script `prepare_google_trace.py` mengambil `TaskID` unik pertama yang
 memiliki kebutuhan CPU positif. Aturan transformasi:
 
 ```
@@ -147,7 +153,7 @@ priority = JobType
 | `ramMB`    | Kebutuhan RAM (dari memory normalized demand)           |
 | `priority` | `JobType` dari trace                                    |
 
-Untuk membuat ulang `tasks.csv` setelah raw trace tersedia:
+Untuk membuat ulang dataset setelah raw trace tersedia:
 
 ```bash
 python3 cloudsim-plus-llfd/dataset/prepare_google_trace.py
@@ -164,11 +170,15 @@ LLFD_Task_Scheduling_Simulator/
 └── cloudsim-plus-llfd/
     ├── pom.xml                         # Maven build file
     ├── dataset/
-    │   ├── tasks.csv                   
+    │   ├── tasks.csv                   # Default dataset (100 tasks)
+    │   ├── tasks_100.csv               # Dataset 100 tasks
+    │   ├── tasks_500.csv               # Dataset 500 tasks
+    │   ├── tasks_1000.csv              # Dataset 1000 tasks
     │   ├── prepare_google_trace.py     
     │   └── source_metadata.txt        
     ├── results/                       
     │   ├── run.log                    
+    │   ├── summary_comparison.txt      # Rekap perbandingan seluruh skema
     │   ├── llfd_mapping.csv           
     │   ├── metrics.txt                 
     │   └── fcfs_metrics.txt          
@@ -217,7 +227,7 @@ Throughput      : x.xxxxxx tasks/s
 
 - **JDK 17** atau lebih baru
 - **Apache Maven** 3.6 atau lebih baru
-- **Python 3.8+** (opsional, hanya jika ingin membuat ulang `tasks.csv`)
+- **Python 3.8+** (opsional, hanya jika ingin membuat ulang file CSV dataset)
 - **Bash** (untuk `run.sh`; di Windows gunakan Git Bash atau WSL)
 
 ---
@@ -236,7 +246,14 @@ Script secara otomatis:
 3. Menjalankan FCFS baseline (`mvn exec:java -Dexec.args="fcfs"`)
 4. Menyimpan semua output ke `cloudsim-plus-llfd/results/run.log`
 
-Python dan virtual environment **tidak diperlukan** untuk menjalankan simulasi.
+### Menjalankan Seluruh Skema Sekaligus (100, 500, dan 1000 Tasks)
+
+Untuk menjalankan benchmark lengkap LLFD vs FCFS di ketiga ukuran dataset dan menghasilkan tabel perbandingan:
+
+```bash
+cd cloudsim-plus-llfd
+mvn exec:java -Dexec.args="all"
+```
 
 ### Menjalankan hanya LLFD (manual)
 
@@ -262,16 +279,24 @@ LLFD memberikan hasil penjadwalan yang sangat baik dengan load balancing yang me
 
 ## Hasil Simulasi (Metrics)
 
-Berdasarkan eksekusi pada dataset 100 tasks Google Cluster Workload Trace, diperoleh performa sebagai berikut:
+Berdasarkan eksekusi pada variasi dataset Google Cluster Workload Trace (100, 500, dan 1000 tasks), diperoleh performa sebagai berikut:
 
-| Metrik | FCFS Baseline | LLFD |
-| --- | --- | --- |
-| **Tasks Completed** | 100 | 100 |
-| **Makespan** | 75.007.485.970,87 s | **24.740.108.562,86 s** |
-| **Total Energy** | 86.493.133.946.367,39 J | **55.417.843.180.810,77 J** |
-| **Avg VM Util.** | 39,91% | **100,00%** |
+| Dataset | Metrik | FCFS Baseline | LLFD | Peningkatan |
+| --- | --- | --- | --- | --- |
+| **100 Tasks** | Makespan (s) | 145.1060 s | **132.5533 s** | **-8.65%** (lebih cepat) |
+| | Total Energy (J) | 300,515.73 J | **292,827.49 J** | **-2.56%** (lebih hemat) |
+| | Avg VM Util. | 90.10% | **97.15%** | **+7.05%** |
+| | Throughput | 0.6891 tasks/s | **0.7544 tasks/s** | **+9.47%** |
+| **500 Tasks** | Makespan (s) | 914.3180 s | **507.9620 s** | **-44.44%** (lebih cepat) |
+| | Total Energy (J) | 2,048,072.32 J | **1,137,834.88 J** | **-44.44%** (lebih hemat) |
+| | Avg VM Util. | 100.00% | **100.00%** | 0.00% |
+| | Throughput | 0.5469 tasks/s | **0.9843 tasks/s** | **+80.00%** |
+| **1000 Tasks** | Makespan (s) | 1,133.6900 s | **637.1340 s** | **-43.80%** (lebih cepat) |
+| | Total Energy (J) | 2,538,067.09 J | **1,427,180.16 J** | **-43.77%** (lebih hemat) |
+| | Avg VM Util. | 99.89% | **100.00%** | **+0.11%** |
+| | Throughput | 0.8821 tasks/s | **1.5695 tasks/s** | **+77.94%** |
 
-Dari hasil ini, LLFD terbukti secara signifikan menurunkan waktu total penyelesaian (makespan) dan konsumsi energi keseluruhan, sekaligus memaksimalkan utilisasi VM (mencapai 100%) dengan load balancing yang jauh lebih merata dibandingkan strategi FCFS.
+Dari hasil ini, LLFD terbukti secara konsisten menurunkan makespan dan konsumsi energi keseluruhan, sekaligus meningkatkan throughput hingga ~80% pada skala beban kerja 500 dan 1000 tasks dibandingkan strategi FCFS.
 
 ---
 
