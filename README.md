@@ -160,6 +160,7 @@ python3 cloudsim-plus-llfd/dataset/prepare_google_trace.py
 ```
 LLFD_Task_Scheduling_Simulator/
 ├── run.sh                              
+├── run_scalability_experiment.py       # Script eksperimen skalabilitas & pembuat grafik
 ├── README.md                           
 └── cloudsim-plus-llfd/
     ├── pom.xml                         # Maven build file
@@ -171,7 +172,14 @@ LLFD_Task_Scheduling_Simulator/
     │   ├── run.log                    
     │   ├── llfd_mapping.csv           
     │   ├── metrics.txt                 
-    │   └── fcfs_metrics.txt          
+    │   ├── fcfs_metrics.txt          
+    │   ├── scalability_results.csv     # Rekap data hasil 100-1000 tasks
+    │   ├── graph_combined.png          # Grafik gabungan semua metrik
+    │   ├── graph_makespan.png          # Grafik perbandingan makespan
+    │   ├── graph_energy.png            # Grafik konsumsi energi
+    │   ├── graph_throughput.png        # Grafik throughput
+    │   ├── graph_avg_util.png          # Grafik rata-rata utilisasi VM
+    │   └── graph_improvement.png       # Grafik persentase efisiensi LLFD
     └── src/
         └── main/
             └── java/
@@ -217,13 +225,14 @@ Throughput      : x.xxxxxx tasks/s
 
 - **JDK 17** atau lebih baru
 - **Apache Maven** 3.6 atau lebih baru
-- **Python 3.8+** (opsional, hanya jika ingin membuat ulang `tasks.csv`)
+- **Python 3.8+** (dengan library `matplotlib` dan `numpy` untuk eksperimen skalabilitas dan pembuatan grafik)
 - **Bash** (untuk `run.sh`; di Windows gunakan Git Bash atau WSL)
 
 ---
 
 ## Cara Menjalankan
 
+### 1. Simulasi Utama (CloudSim Plus)
 Dari root repository:
 
 ```bash
@@ -236,21 +245,23 @@ Script secara otomatis:
 3. Menjalankan FCFS baseline (`mvn exec:java -Dexec.args="fcfs"`)
 4. Menyimpan semua output ke `cloudsim-plus-llfd/results/run.log`
 
-Python dan virtual environment **tidak diperlukan** untuk menjalankan simulasi.
-
-### Menjalankan hanya LLFD (manual)
-
+#### Menjalankan manual per algoritma:
 ```bash
+# LLFD
 cd cloudsim-plus-llfd
 mvn compile exec:java
-```
 
-### Menjalankan hanya FCFS baseline (manual)
-
-```bash
-cd cloudsim-plus-llfd
+# FCFS Baseline
 mvn exec:java -Dexec.args="fcfs"
 ```
+
+### 2. Eksperimen Skalabilitas & Visualisasi Grafik (Python)
+Untuk mengevaluasi performa LLFD vs FCFS dari skala 100 hingga 1.000 tasks dan menghasilkan grafik visualisasi:
+
+```bash
+python run_scalability_experiment.py
+```
+Grafik dan file CSV akan tersimpan secara otomatis di direktori `cloudsim-plus-llfd/results/`.
 
 ---
 
@@ -260,18 +271,61 @@ LLFD memberikan hasil penjadwalan yang sangat baik dengan load balancing yang me
 
 ---
 
-## Hasil Simulasi (Metrics)
+## Hasil Simulasi & Evaluasi
 
-Berdasarkan eksekusi pada dataset 100 tasks Google Cluster Workload Trace, diperoleh performa sebagai berikut:
+### 1. Hasil Single Run (100 Tasks Google Cluster Trace)
 
-| Metrik | FCFS Baseline | LLFD |
-| --- | --- | --- |
-| **Tasks Completed** | 100 | 100 |
-| **Makespan** | 75.007.485.970,87 s | **24.740.108.562,86 s** |
-| **Total Energy** | 86.493.133.946.367,39 J | **55.417.843.180.810,77 J** |
-| **Avg VM Util.** | 39,91% | **100,00%** |
+| Metrik | FCFS Baseline | LLFD | Peningkatan |
+| --- | --- | --- | --- |
+| **Tasks Completed** | 100 | 100 | - |
+| **Makespan** | 75.007.485.970,87 s | **24.740.108.562,86 s** | **~67.0% lebih cepat** |
+| **Total Energy** | 86.493.133.946.367,39 J | **55.417.843.180.810,77 J** | **~35.9% lebih hemat** |
+| **Avg VM Util.** | 39,91% | **100,00%** | **Optimal (+60.09%)** |
 
-Dari hasil ini, LLFD terbukti secara signifikan menurunkan waktu total penyelesaian (makespan) dan konsumsi energi keseluruhan, sekaligus memaksimalkan utilisasi VM (mencapai 100%) dengan load balancing yang jauh lebih merata dibandingkan strategi FCFS.
+---
+
+### 2. Evaluasi Skalabilitas (100 - 1.000 Tasks)
+
+Tabel berikut menunjukkan perbandingan performa antara **LLFD** dan **FCFS Baseline** seiring meningkatnya jumlah task (data tersimpan di `cloudsim-plus-llfd/results/scalability_results.csv`):
+
+| Jumlah Task | Makespan LLFD (s) | Makespan FCFS (s) | Efisiensi Makespan | Energi LLFD (J) | Energi FCFS (J) | Efisiensi Energi | Avg Util LLFD (%) | Avg Util FCFS (%) | Throughput LLFD (task/s) | Throughput FCFS (task/s) |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **100** | 31.25 | 37.50 | +16.7% | 39,875.00 | 46,875.00 | +14.9% | 43.75% | 43.02% | 3.20 | 2.67 |
+| **200** | 40.63 | 68.75 | +40.9% | 58,760.42 | 83,572.92 | +29.7% | 56.47% | 40.76% | 4.92 | 2.91 |
+| **300** | 59.38 | 103.13 | +42.4% | 85,739.58 | 123,708.33 | +30.7% | 56.10% | 40.48% | 5.05 | 2.91 |
+| **400** | 78.13 | 128.13 | +39.0% | 113,322.92 | 156,572.92 | +27.6% | 56.57% | 42.60% | 5.12 | 3.12 |
+| **500** | 96.88 | 171.88 | +43.6% | 140,906.25 | 206,375.00 | +31.7% | 56.85% | 41.25% | 5.16 | 2.91 |
+| **600** | 112.50 | 203.13 | +44.6% | 162,937.50 | 242,177.08 | +32.7% | 56.39% | 40.63% | 5.33 | 2.95 |
+| **700** | 131.25 | 231.25 | +43.2% | 189,770.83 | 278,135.42 | +31.8% | 56.39% | 41.63% | 5.33 | 3.03 |
+| **800** | 150.00 | 259.38 | +42.2% | 216,750.00 | 314,166.67 | +31.0% | 56.25% | 41.99% | 5.33 | 3.08 |
+| **900** | 168.75 | 300.00 | +43.8% | 244,333.33 | 359,468.75 | +32.0% | 56.45% | 41.03% | 5.33 | 3.00 |
+| **1000** | 184.38 | 325.00 | **+43.3%** | 266,364.58 | 390,614.58 | **+31.8%** | **56.20%** | **41.32%** | **5.42** | **3.08** |
+
+---
+
+### 3. Visualisasi Grafik Performa
+
+#### Grafik Gabungan Semua Metrik
+![Grafik Perbandingan Lengkap LLFD vs FCFS](cloudsim-plus-llfd/results/graph_combined.png)
+
+<br/>
+
+#### Perbandingan Makespan & Konsumsi Energi
+| Makespan (Waktu Penyelesaian) | Konsumsi Energi (Joules) |
+| :---: | :---: |
+| ![Grafik Makespan](cloudsim-plus-llfd/results/graph_makespan.png) | ![Grafik Konsumsi Energi](cloudsim-plus-llfd/results/graph_energy.png) |
+
+<br/>
+
+#### Perbandingan Throughput & Rata-rata Utilisasi VM
+| Throughput (Tasks/detik) | Rata-rata Utilisasi VM (%) |
+| :---: | :---: |
+| ![Grafik Throughput](cloudsim-plus-llfd/results/graph_throughput.png) | ![Grafik Utilisasi VM](cloudsim-plus-llfd/results/graph_avg_util.png) |
+
+<br/>
+
+#### Persentase Peningkatan Efisiensi LLFD terhadap FCFS
+![Grafik Persentase Peningkatan](cloudsim-plus-llfd/results/graph_improvement.png)
 
 ---
 
@@ -280,3 +334,4 @@ Dari hasil ini, LLFD terbukti secara signifikan menurunkan waktu total penyelesa
 Google Cluster Workload Trace Version 1 dirilis di bawah lisensi
 [Creative Commons Attribution (CC-BY)](https://creativecommons.org/licenses/by/4.0/).
 Lihat `cloudsim-plus-llfd/dataset/source_metadata.txt` untuk detail lengkap.
+
