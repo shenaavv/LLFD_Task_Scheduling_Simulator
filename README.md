@@ -173,7 +173,7 @@ LLFD_Task_Scheduling_Simulator/
     │   ├── llfd_mapping.csv           
     │   ├── metrics.txt                 
     │   ├── fcfs_metrics.txt          
-    │   ├── scalability_results.csv     # Rekap data hasil 100-1000 tasks
+    │   ├── scalability_results.csv     # Rekap data hasil 100-10000 tasks
     │   ├── graph_combined.png          # Grafik gabungan semua metrik
     │   ├── graph_makespan.png          # Grafik perbandingan makespan
     │   ├── graph_energy.png            # Grafik konsumsi energi
@@ -256,7 +256,7 @@ mvn exec:java -Dexec.args="fcfs"
 ```
 
 ### 2. Eksperimen Skalabilitas & Visualisasi Grafik (Python)
-Untuk mengevaluasi performa LLFD vs FCFS dari skala 100 hingga 1.000 tasks dan menghasilkan grafik visualisasi:
+Untuk mengevaluasi performa LLFD vs FCFS dari skala 100 hingga 10.000 tasks dan menghasilkan grafik visualisasi:
 
 ```bash
 python run_scalability_experiment.py
@@ -284,22 +284,24 @@ LLFD memberikan hasil penjadwalan yang sangat baik dengan load balancing yang me
 
 ---
 
-### 2. Evaluasi Skalabilitas (100 - 1.000 Tasks)
+### 2. Evaluasi Skalabilitas (100 - 10.000 Tasks)
 
 Tabel berikut menunjukkan perbandingan performa antara **LLFD** dan **FCFS Baseline** seiring meningkatnya jumlah task (data tersimpan di `cloudsim-plus-llfd/results/scalability_results.csv`):
 
 | Jumlah Task | Makespan LLFD (s) | Makespan FCFS (s) | Efisiensi Makespan | Energi LLFD (J) | Energi FCFS (J) | Efisiensi Energi | Avg Util LLFD (%) | Avg Util FCFS (%) | Throughput LLFD (task/s) | Throughput FCFS (task/s) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **100** | 31.25 | 37.50 | +16.7% | 39,875.00 | 46,875.00 | +14.9% | 43.75% | 43.02% | 3.20 | 2.67 |
-| **200** | 40.63 | 68.75 | +40.9% | 58,760.42 | 83,572.92 | +29.7% | 56.47% | 40.76% | 4.92 | 2.91 |
-| **300** | 59.38 | 103.13 | +42.4% | 85,739.58 | 123,708.33 | +30.7% | 56.10% | 40.48% | 5.05 | 2.91 |
-| **400** | 78.13 | 128.13 | +39.0% | 113,322.92 | 156,572.92 | +27.6% | 56.57% | 42.60% | 5.12 | 3.12 |
 | **500** | 96.88 | 171.88 | +43.6% | 140,906.25 | 206,375.00 | +31.7% | 56.85% | 41.25% | 5.16 | 2.91 |
-| **600** | 112.50 | 203.13 | +44.6% | 162,937.50 | 242,177.08 | +32.7% | 56.39% | 40.63% | 5.33 | 2.95 |
-| **700** | 131.25 | 231.25 | +43.2% | 189,770.83 | 278,135.42 | +31.8% | 56.39% | 41.63% | 5.33 | 3.03 |
-| **800** | 150.00 | 259.38 | +42.2% | 216,750.00 | 314,166.67 | +31.0% | 56.25% | 41.99% | 5.33 | 3.08 |
-| **900** | 168.75 | 300.00 | +43.8% | 244,333.33 | 359,468.75 | +32.0% | 56.45% | 41.03% | 5.33 | 3.00 |
-| **1000** | 184.38 | 325.00 | **+43.3%** | 266,364.58 | 390,614.58 | **+31.8%** | **56.20%** | **41.32%** | **5.42** | **3.08** |
+| **1.000** | 184.38 | 325.00 | +43.3% | 266,364.58 | 390,614.58 | +31.8% | 56.20% | 41.32% | 5.42 | 3.08 |
+| **2.000** | 368.75 | 643.75 | +42.7% | 532,729.17 | 775,875.00 | +31.3% | 56.20% | 41.78% | 5.42 | 3.11 |
+| **3.000** | 565.63 | 987.50 | +42.7% | 816,781.25 | 1,191,739.58 | +31.5% | 56.17% | 42.03% | 5.30 | 3.04 |
+| **4.000** | 759.38 | 1,281.25 | +40.7% | 1,097,239.58 | 1,562,197.92 | +29.8% | 56.24% | 42.90% | 5.27 | 3.12 |
+| **5.000** | 953.13 | 1,618.75 | +41.1% | 1,376,322.92 | 1,968,437.50 | +30.1% | 56.20% | 42.58% | 5.25 | 3.09 |
+| **6.000** | 1,134.38 | 1,915.63 | +40.8% | 1,639,718.75 | 2,335,635.42 | +29.8% | 56.29% | 42.83% | 5.29 | 3.13 |
+| **7.000** | 1,328.13 | 2,246.88 | +40.9% | 1,919,572.92 | 2,735,166.67 | +29.8% | 56.27% | 42.62% | 5.27 | 3.12 |
+| **8.000** | 1,518.75 | 2,603.13 | +41.7% | 2,194,479.17 | 3,152,958.33 | +30.4% | 56.24% | 42.11% | 5.27 | 3.07 |
+| **9.000** | 1,709.38 | 2,934.38 | +41.8% | 2,469,989.58 | 3,556,635.42 | +30.5% | 56.24% | 42.31% | 5.27 | 3.07 |
+| **10.000** | 1,893.75 | 3,218.75 | **+41.2%** | 2,736,958.33 | 3,915,520.83 | **+30.1%** | **56.27%** | **42.69%** | **5.28** | **3.11** |
 
 ---
 
