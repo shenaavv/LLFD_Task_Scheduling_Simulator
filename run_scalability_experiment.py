@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Scalability Experiment: LLFD vs FCFS — Task Count 100–1000
+Scalability Experiment: LLFD vs FCFS — Task Count 100–10000
 ==========================================================
 
 Reimplements the LLFD and FCFS scheduling algorithms using the same cloud
 architecture parameters as the Java/CloudSim Plus simulator.  Generates
-datasets of varying sizes (100-1000 tasks) by resampling the original
+datasets of varying sizes (100-10000 tasks) by resampling the original
 Google Cluster Trace dataset, runs both algorithms, collects performance
 metrics, and produces comparison graphs.
 
@@ -285,7 +285,8 @@ def create_graphs(task_counts, llfd_results, fcfs_results, output_dir):
         ax.set_title(title, fontsize=16, fontweight="bold", pad=15)
         ax.legend(loc="best", framealpha=0.9)
         ax.grid(True, linestyle="--", alpha=0.4)
-        ax.set_xticks(task_counts)
+        ax.set_xticks(task_counts[::10])  # every 1000
+        ax.tick_params(axis='x', rotation=45)
 
         # Add subtle glow effect
         for spine in ax.spines.values():
@@ -299,9 +300,9 @@ def create_graphs(task_counts, llfd_results, fcfs_results, output_dir):
         print(f"  [SAVED] {fname}")
 
     # Combined 2x2 figure
-    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    fig, axes = plt.subplots(2, 2, figsize=(18, 13))
     fig.suptitle(
-        "LLFD vs FCFS — Scalability Analysis (100–1000 Tasks)",
+        "LLFD vs FCFS — Scalability Analysis (100–10000 Tasks)",
         fontsize=18, fontweight="bold", y=0.98, color="#ffffff"
     )
 
@@ -324,7 +325,8 @@ def create_graphs(task_counts, llfd_results, fcfs_results, output_dir):
         ax.set_title(title, fontsize=13, fontweight="bold", pad=10)
         ax.legend(loc="best", framealpha=0.9)
         ax.grid(True, linestyle="--", alpha=0.4)
-        ax.set_xticks(task_counts)
+        ax.set_xticks(task_counts[::10])  # every 1000
+        ax.tick_params(axis='x', rotation=45)
 
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     fname = os.path.join(output_dir, "graph_combined.png")
@@ -342,7 +344,7 @@ def create_graphs(task_counts, llfd_results, fcfs_results, output_dir):
         ("throughput", "Throughput",   "#00ff88"),
     ]
 
-    bar_width = 25
+    bar_width = 60
     x_pos = np.array(task_counts)
 
     for i, (key, label, color) in enumerate(improvement_metrics):
@@ -377,7 +379,8 @@ def create_graphs(task_counts, llfd_results, fcfs_results, output_dir):
                  fontsize=16, fontweight="bold", pad=15)
     ax.legend(loc="best", framealpha=0.9)
     ax.grid(True, axis="y", linestyle="--", alpha=0.4)
-    ax.set_xticks(task_counts)
+    ax.set_xticks(task_counts[::10])  # every 1000
+    ax.tick_params(axis='x', rotation=45)
     ax.axhline(y=0, color="#666688", linewidth=0.8)
 
     fig.tight_layout()
@@ -428,7 +431,7 @@ def main():
     print()
     print("=" * 60)
     print(" LLFD vs FCFS — Scalability Experiment")
-    print(" Task counts: 100, 200, 300, ..., 1000")
+    print(" Task counts: 100, 200, 300, ..., 10000")
     print("=" * 60)
     print()
 
@@ -439,7 +442,7 @@ def main():
     print()
 
     # 2. Run experiments
-    task_counts  = list(range(100, 1001, 100))  # 100, 200, ..., 1000
+    task_counts  = list(range(100, 10001, 100))  # 100, 200, ..., 10000
     llfd_results = []
     fcfs_results = []
 
